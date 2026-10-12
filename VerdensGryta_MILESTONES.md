@@ -1,0 +1,307 @@
+# VerdensGryta – milepæler for Codex
+
+Dato: 9. oktober 2026  
+Arbeidsnavn: VerdensGryta  
+Konsept: Nasjonalretter og populære retter fra verden, tilpasset ingredienser som kan handles i Norge, blant annet i asiatiske butikker og andre internasjonale matbutikker.  
+Plattform: SwiftUI-prosjekt i brukerens Xcode 27.  
+Status: M0–M6 er fullført og simulatorverifisert. M7 er teknisk gjennomgått, men redaksjonell utvidelse, prøvelaging, rettighetskontroll, språkkyndig mattrygghetsgjennomgang og en faktisk frakoblet test gjenstår. M8 er ikke startet.
+
+## 1. Instruksjoner til Codex
+
+Les hele denne filen og eventuelle AGENTS.md-filer før du endrer prosjektet. Undersøk eksisterende filer først. Bevar fungerende kode og brukerdata.
+
+- Arbeid med én milepæl om gangen. Første oppdrag er kun M0.
+- Når brukeren skriver «fortsett», arbeid med neste uferdige milepæl.
+- Ikke implementer senere milepæler på eget initiativ. Gjør nødvendige forberedelser, men unngå tomme tjenester, skjermer og store rammeverk.
+- Bruk små, forståelige SwiftUI-komponenter og få avhengigheter. Ikke legg inn tredjepartspakker uten et konkret behov.
+- Etter hver milepæl: bygg, utfør relevante kontroller, oppdater avkrysninger og arbeidsloggen, og rapporter hva brukeren skal teste.
+- Marker bare en oppgave som ferdig når den faktisk er gjennomført. Skill mellom implementert, bygget og manuelt testet.
+- Hvis Xcode eller simulator ikke er tilgjengelig, oppgi dette tydelig. Ikke påstå at en build er godkjent uten å ha kjørt den.
+- Spør kun når en avgjørelse vesentlig endrer funksjon, kostnad eller data. Ta vanlige implementeringsvalg selv.
+- Ingen abonnementer, eksterne API-er, konto, analyseverktøy eller AI i første versjon.
+- Kontroller gjeldende Apple-dokumentasjon når plattformfunksjoner og innsending krever det. Denne planen fastsetter ikke fremtidige App Store-krav.
+
+## 2. Produkt og første versjon
+
+Brukeren skal kunne utforske land, finne nasjonalretter og populære retter, velge porsjoner og tilgjengelige ingredienser, skrive ut en handleliste med butikkforslag og følge den tilpassede oppskriften ett steg om gangen.
+
+Hovedfokuset er nå nasjonalretter og populære retter, ikke graden av uvanlighet. Vis originalretten og en tydelig merket tilpasset variant. Dokumenter omtalen som nasjonalrett eller populær rett; ikke påstå at en rett har offisiell nasjonalstatus uten kilde. Et land kan ha flere retter og regionale varianter.
+
+Start med tre tydelig merkede demonstrasjonsoppskrifter fra tre forskjellige land, som viser nasjonalrett/populær rett, ett ingrediensbytte og generelle butikkforslag. Utvid etter at funksjonene fungerer, til 30–50 redaksjonelt gjennomgåtte oppskrifter fra omtrent 8–10 land. Dette er et innholdsmål før lansering, ikke et krav i M0.
+
+Første versjon inkluderer:
+
+- Oppskriftsoversikt, detaljside og søk/filtre.
+- Matkategorier: storfe, svin, lam/sau, fugl, fisk, krepsdyr, bløtdyr, vegetar. En rett kan tilhøre flere kategorier. Vegetarmerking må vurderes ut fra alle ingrediensene, også kraft og sauser.
+- Land/region, originalnavn, kort historie, vanskelighetsgrad og merking som nasjonalrett, populær rett eller regional spesialitet.
+- Ingredienser som kan finnes i norske dagligvarebutikker, asiatiske butikker og andre internasjonale matbutikker, med kjøpsveiledning og vurderte alternativer.
+- Ingredienser, porsjonsjustering, allergenprofil og utskrivbar handleliste med butikkforslag og alternativer. Valgte ingrediensbytter vises konsekvent i oppskrift, handleliste og matlagingssteg.
+- Utstyr: komfyr, ovn, airfryer, slow cooker, kjele, stekepanne og uten varmebehandling.
+- Forberedelsestid, aktiv tid, ventetid og total tid. Skill mellom tider som overlapper og tider som summeres.
+- Prisoverslag per rett og porsjon, med valuta, dato og beregningsgrunnlag.
+- Stegvis matlagingsmodus, tidtakere, favoritter og egne notater.
+- Offline oppskrifter og lokal lagring.
+- Innstillinger: norsk, engelsk og thai; lyst, mørkt og system; appnavn, versjon og build.
+
+Popularitet vises ikke som en faktisk brukerrangering før appen har en pålitelig datakilde. Første versjon kan vise «Redaksjonens utvalg» med en tydelig redaksjonell sortering.
+
+## 3. Struktur og tekniske valg
+
+Bruk disse gruppene/mappene etter hvert som filer trengs:
+
+| Mappe | Innhold |
+| --- | --- |
+| App | Appens startpunkt og hovednavigasjon |
+| Models | Oppskrift, ingrediens, steg, kategorier og brukerdata |
+| Views | ExploreRecipesView, RecipeDetailView, ShoppingListView, CookingModeView, FavoritesView, SettingsView |
+| Services | Lasting, porsjonsberegning, allergenvurdering og lokal lagring |
+| Config | Appinnstillinger og konfigurasjon |
+| Resources | JSON-oppskrifter, bilder og lokaliseringsressurser |
+| Tests | Tester av beregninger og data som trenger automatisert verifisering |
+
+Gi ContentView et passende navn: ExploreRecipesView dersom den er oppskriftsoversikten, eller AppRootView dersom den bare styrer navigasjon. Ikke lag dupliserte app-startpunkter.
+
+Bruk medfølgende JSON for redaksjonelle oppskrifter og stabile ID-er. Bruk SwiftData til lokale favoritter, notater og handleliste når disse funksjonene innføres; enkle innstillinger kan ligge i AppStorage. Ikke aktiver iCloud i første versjon. Velg og dokumenter minimumsversjon for iOS ut fra eksisterende prosjekt og API-behov. Xcode-versjonen bestemmer ikke automatisk minimumsversjonen for iOS.
+
+Design i første omgang for iPhone. Bruk fleksible SwiftUI-oppsett; ta stilling til iPad-støtte i en senere milepæl. Bruk et varmt og ryddig uttrykk, god kontrast og store kontroller i matlagingsmodus. Ikke bruk bare farge for å vise allergenvarsler.
+
+## 4. Datamodell – innføres gradvis
+
+- Recipe: stabil ID, lokalisert tittel/beskrivelse, land/region, kategorier, utstyr, grunnporsjoner, ingredienser, steg, tidsfelter, vanskelighetsgrad, rettstype (nasjonalrett/populær rett/regional spesialitet), originalnavn, originalvariant, bilde, kilde og innholdsstatus.
+- Ingredient: stabil ingrediens-ID, norsk navn, originalt/alternativt produktnavn for søk i butikk, numerisk mengde når relevant, enhet, skaleringstype, allergener, kjøpsveiledning og eventuelle erstatninger.
+- IngredientSubstitution: original og alternativ ingrediens-ID, mengdefaktor/enhet, begrunnelse, smaks-/konsistensforskjell, egne allergener og eventuelle endringer i fremgangsmåte, tid eller temperatur. Erstatning er oppskriftsspesifikk, ikke automatisk gyldig i alle retter.
+- ShoppingSuggestion: butikktype, eventuelt dokumentert butikknavn/sted, produktnavn og dato/kilde for konkret butikkforslag. Generelle butikktyper krever ikke nettverk.
+- RecipeSelection: porsjoner og eksplisitt valgte erstatninger; felles grunnlag for oppskrift, handleliste, utskrift og matlagingsøkt.
+- RecipeStep: rekkefølge, lokalisert tekst, referanser til ingredienser, eventuell tidtaker, temperatur og utstyr.
+- PriceEstimate: valuta, prisgrunnlag, prisdato og metode. Bruk Decimal for pengebeløp.
+- UserRecipeState: favoritt, notat og eventuelt sist laget; knyttes til Recipe-ID.
+- ShoppingListItem: valgt ingrediens-ID, mengde, enhet, butikkavdeling, butikkforslag, original ingrediens ved bytte og avkrysning. Bevar hvilken oppskrift og variant mengden kommer fra.
+- AllergenProfile: brukerens valgte allergener. Manglende allergendata behandles som ukjent, ikke som allergenfri.
+
+Oppskriftsdata skal ha kilde/lisens, status «demo», «utkast» eller «gjennomgått», og dato for siste innholdskontroll. Bilder og tekster må være egne eller ha dokumentert tillatelse. En AI-generert oppskrift er et utkast til den er gjennomgått og prøvelaget.
+
+## 5. Regler for mengder, pris og allergener
+
+Porsjonsfaktor = valgte porsjoner / oppskriftens grunnporsjoner.
+
+- Regn med uavrundede mengder. Rund bare i visningen, slik at gjentatte porsjonsendringer ikke gir avvik.
+- Bruk g, kg, ml, l, ts, ss og stk. Ikke konverter vekt til volum uten en dokumentert ingrediensspesifikk faktor.
+- Vis brøker for stykkvarer når det passer. Ikke rund en halv løk opp uten å forklare det.
+- «Etter smak» og «til steking» skal kunne være tekstmengder som ikke skaleres numerisk.
+- Tid, temperatur, pannestørrelse og væske-/kryddertilpasning skaleres ikke blindt. Vis relevante merknader ved store porsjonsendringer.
+- Stegene skal bruke ingrediensreferanser, slik at viste mengder følger porsjonsvalget. Unngå faste mengder gjemt i fritekst.
+- Pris per porsjon beskriver ingrediensforbruk; handlekostnaden kan være høyere fordi man kjøper hele pakker. Skill disse begrepene.
+- Et ingrediensbytte skal oppdatere mengder, allergenvurdering og pris der det finnes grunnlag. Hvis informasjon mangler, vis at den er ukjent.
+- Vis «Original: X – valgt alternativ: Y», hvorfor byttet foreslås og hva det endrer. Behold originaloppskriften tilgjengelig. Brukeren velger byttet; et trykt forslag skal ikke endre oppskriften automatisk.
+- Oppdater ingrediensnavn, mengder og relevante tilberedningssteg ved bytte, inkludert dokumenterte endringer i tid/temperatur. Ingen generelt forhold på 1:1 uten vurdering.
+- Bruk ett felles beregningsgrunnlag for oppskrift, handleliste og utskrift. Matlagingsøkten bruker et lagret øyeblikksbilde av porsjoner og valg.
+- Butikkforslag er kjøpsveiledning, ikke garanti for lager eller pris. Start med butikktyper. Konkrete butikk- og produktforslag må ha kontrollert kilde/dato; ikke finn på butikker, varemerker eller tilgjengelighet. Ingen GPS eller butikk-API i første versjon.
+- Appen må aldri love at en rett er trygg for en bestemt allergiker. Produktetiketter og krysskontakt må vurderes av brukeren.
+- Allergenlisten og mattrygghetsinnhold kontrolleres mot relevante offisielle kilder før publisering. Dokumenter kildene i prosjektet.
+- Utsett risikofylte råretter og mat med særskilte behandlingskrav til faglig gjennomgang. Første demoer skal være enkle retter uten slike krav.
+
+## M0 – Prosjektgrunnlag
+
+Mål: En liten app som starter, med ryddig struktur og innstillinger. Oppskriftsoversikten skal allerede her gjenspeile det nye hovedfokuset: tre demoer fra ulike land, tydelig merket som nasjonalrett, populær rett eller regional spesialitet, med en kort indikasjon på ingredienstilgjengelighet i Norge. Full oppskriftsdetalj, aktivt ingrediensbytte, handleliste og utskrift hører fortsatt til senere milepæler.
+
+- [x] Undersøk Xcode-prosjektet, eksisterende kode og prosjektinnstillinger.
+- [x] Dokumenter arbeidsnavn, bundle-ID som allerede finnes, deployment target og enheter. Ikke endre signering eller team uten behov.
+- [x] Opprett bare mapper og filer som brukes nå.
+- [x] Erstatt/gi nytt navn til ContentView og oppdater referanser.
+- [x] Lag enkel oppskriftsoversikt med tre statiske demo-kort fra tre forskjellige land. Merk hvert kort tydelig som nasjonalrett, populær rett eller regional spesialitet, og vis en kort, generell indikasjon på hvor relevante ingredienser kan finnes i Norge. Detaljer, konkrete butikkforslag, ingrediensvalg og matlagingsmodus bygges senere.
+- [x] Lag navigasjon mellom oversikt og SettingsView.
+- [x] Lag språkvalg norsk/engelsk/thai med lokaliserte grensesnitttekster. Bruk String Catalog eller prosjektets etablerte løsning. Språkvalg skal fungere i appen og huskes.
+- [x] Lag lyst/mørkt/system med lagret valg.
+- [x] Vis appnavn og faktisk versjon/build fra appens metadata.
+- [x] Kontroller at demo-kortene og innstillingene fungerer med stor tekst og mørk modus.
+- [x] Bygg og rapporter eventuelle begrensninger i verifiseringen.
+
+Ferdig når: appen åpnes, demo-kort vises, innstillinger kan endres og huskes etter omstart. Stopp her i første oppdrag.
+
+Verifisert prosjektgrunnlag for M0 (2026-10-09):
+
+- Arbeidsnavn og appmål: VerdensGryta.
+- Eksisterende bundle-ID: `com.terjemoe.VerdensGryta`.
+- Deployment target: iOS 27.0.
+- Målrettede enheter: iPhone og iPad (`TARGETED_DEVICE_FAMILY = 1,2`); første designfokus er fortsatt iPhone.
+- Versjon/build: 1.0 (1).
+- Signering står urørt med automatisk signering og eksisterende team.
+- Ved M0-start var grensesnittet den urørte SwiftUI-malen med `ContentView` og «Hello, world!».
+- Baseline ble bygget uten feil i Xcode 2026-10-09. Dette verifiserer bare eksisterende mal, ikke de resterende M0-kravene.
+
+## M1 – Oppskriftsdata og detaljvisning
+
+- [x] Innfør nødvendige datamodeller og JSON-laster med tydelige feiltilstander.
+- [x] Flytt tre demoer til lokale data; marker at innholdet ikke er publiseringsklart.
+- [x] Lag RecipeDetailView med ingredienser, grunnporsjoner, land/region, rettstype, originalnavn, historie, kategorier, utstyr og tidsoversikt.
+- [x] Vis originalvariant og tilgjengelig tilpasset variant, samt kjøpsveiledning med butikktype og alternative produktnavn.
+- [x] Vis innholdets kilde/status og bildeplassholder dersom bilde mangler.
+- [x] Lokalisering støtter oppskriftsinnhold, med synlig fallback hvis oversettelse mangler.
+- [x] Kontroller manglende felt, ukjent enumverdi og ugyldig JSON uten appkrasj.
+
+Ferdig når: alle tre demoer kan åpnes og leses offline.
+
+## M2 – Porsjoner og mengdeberegning
+
+- [x] Lag egen beregningstjeneste; behold originalmengdene.
+- [x] Legg til porsjonsvalg med gyldig intervall og merknad om utstyr ved større mengder.
+- [x] Oppdater ingrediensvisning og refererte mengder i steg.
+- [x] Støtt metrisk format, brøker og tekstmengder.
+- [x] Test 2 → 4 → 2 porsjoner, halve porsjoner, stykkvarer og «etter smak».
+- [x] Verifiser at tid og temperatur ikke endres av porsjonsvalg.
+
+Ferdig når: mengdene er riktige, lesbare og uten kumulative avrundingsfeil.
+
+## M3 – Allergener og ingrediensbytte
+
+- [x] Lag lokal allergenprofil i SettingsView.
+- [x] Vis tydelig varsling på ingrediensnivå og rettsnivå.
+- [x] Skill kjent allergen, mulig/ukjent innhold og manglende data.
+- [x] Vis påminnelse om etikett og krysskontakt.
+- [x] Legg til et lite, redaksjonelt vurdert sett erstatninger for ingredienser som kan være vanskelige å finne i Norge; behold originalvalget tilgjengelig.
+- [x] Vis begrunnelse, mengdeforhold og forskjell i smak/konsistens. Brukeren velger aktivt original eller alternativ.
+- [x] La byttet oppdatere både ingredienslisten og berørte tilberedningssteg, inkludert vurderte tids-/temperaturendringer.
+- [x] Test at valgt alternativ har identisk navn og mengde i oppskrift og tilberedningssteg. Gjenta samme kontroll for handleliste og utskrift når disse innføres i M4; forslag som ikke er valgt må ikke erstatte handlevaren.
+- [x] Oppdater vurderingen ved ingrediensbytte og test manglende allergendata.
+
+Ferdig når: varsler følger brukerprofil og valgte ingredienser uten løfter om trygghet.
+
+## M4 – Handleliste, butikkforslag og utskrift
+
+- [x] Legg til ingredienser fra valgte porsjoner og ingrediensbytter.
+- [x] La brukeren utelate det som allerede finnes hjemme.
+- [x] Slå sammen samme ingrediens i kompatible enheter; ikke slå sammen bare etter visningsnavn.
+- [x] Vis butikkforslag per vare, med produktnavn som hjelper brukeren å finne riktig vare.
+- [x] La brukeren gruppere etter butikktype/butikk og deretter butikkavdeling, krysse av og redigere.
+- [x] Vis valgt erstatning med originalvaren i en merknad. Eventuelle andre alternativer merkes som forslag, ikke ekstra varer som må kjøpes.
+- [x] Endring av ingrediensvalg fra handlelisten oppdaterer den tilknyttede oppskriftsvarianten. Skill egne manuelle handlevarer fra oppskriftsingredienser.
+- [x] Lagre listen lokalt, med ryddig oppdatering når porsjoner endres uten å duplisere gamle mengder.
+- [x] Del listen som tekst gjennom systemets delingsfunksjon.
+- [x] Lag en lesbar A4-PDF med avkrysningsbokser, rett/land, porsjoner, mengder, butikkforslag og erstatningsmerknader. Ta med dato, allergenpåminnelse og merknad om at butikkforslag ikke bekrefter lager.
+- [x] Legg til «Skriv ut» via iOS-utskriftsdialog/AirPrint og «Del PDF». PDF kan forhåndsvises og lagres uten skriver.
+- [x] Utskriften bruker det samme gjeldende porsjons- og ingrediensvalget som oppskriften.
+- [x] Test flere sider, lange varenavn, norske og thailandske tegn, svart-hvitt-utskrift, ingen tilgjengelig skriver og avbrutt utskrift.
+- [x] Test to oppskrifter med samme ingrediens, ulike enheter og omstart.
+
+Ferdig når: handlelisten bevares mellom økter og kan deles/skrives ut med butikkforslag og tydelige alternativer. Oppskrift, liste og PDF viser samme valgte varer og mengder.
+
+## M5 – Matlagingsmodus
+
+- [x] Ett steg om gangen med tydelige neste/forrige-knapper.
+- [x] Vis aktuelle valgte ingredienser og skalerte mengder i steget, med tilpasset fremgangsmåte ved ingrediensbytte.
+- [x] Tidtakere kan startes, pauses og avsluttes, også flere samtidig når nødvendig.
+- [x] Beregn gjenværende tid fra slutttidspunkt; ikke stol på at en app-timer kjører i bakgrunnen.
+- [x] Hvis ferdigvarsler brukes, spør om varslingstillatelse når brukeren velger funksjonen; avslag skal fungere fint. M5 bruker ikke systemvarsler og ber derfor ikke om tillatelse.
+- [x] Husk aktiv oppskrift, porsjoner og steg. Unngå at senere porsjonsendringer utilsiktet endrer en aktiv økt.
+- [x] Test låsing, bakgrunn, tilbakekomst og VoiceOver.
+
+Ferdig når: en hel rett kan følges uten å hoppe mellom oversikt og ingrediensliste.
+
+## M6 – Søk, favoritter og pris
+
+- [x] Søk etter rett og ingrediens; filtre for kategori, land, rettstype, utstyr og tid.
+- [x] Kombiner filtre og vis en hjelpsom tomtilstand.
+- [x] Lagre favoritter og private notater lokalt med stabile oppskrifts-ID-er.
+- [x] Innfør daterte prisanslag og vis pris per rett/porsjon; merk anslag og manglende priser tydelig.
+- [x] Ingen fabrikkert popularitet eller butikkpriser. Redaksjonell utvelgelse merkes som dette.
+
+Ferdig når: brukeren kan finne og lagre passende retter og forstå prisgrunnlaget.
+
+## M7 – Innhold og helhet
+
+- [ ] Utvid gradvis til lanseringsutvalget: nasjonalrett(er) og noen populære retter fra hvert valgt land. Dokumenter klassifiseringen uten å kreve én offisiell rett per land. Tre demoer og 21 kildebelagte utkast fra åtte land finnes; nedre del av landmålet er nådd, men målet på 30–50 redaksjonelt gjennomgåtte oppskrifter gjenstår.
+- [ ] Prøvelag både originalvariant der ingredienser er tilgjengelige og tilpassede varianter; gjennomgå kjøpsveiledning og ingrediensbytter. Krever dokumentert fysisk prøvelaging og kan ikke godkjennes gjennom simulatoren.
+- [ ] Kontroller rettigheter, opphav, allergendata, steg, mengder, tid og oversettelser. Modellvalidering og metadata finnes, men full redaksjonell kontroll av publiseringsinnholdet gjenstår.
+- [ ] Gjennomgå norsk, engelsk og thai; få språkkyndig vurdering av mattrygghetstekster. Grensesnittkatalogene er komplette, men språkkyndig vurdering av innhold og sikkerhetstekster gjenstår.
+- [x] Lag kort brukerveiledning: velg land/rett → porsjoner → original eller alternativ vare → butikkforslag → skriv ut handleliste → følg tilpasset oppskrift.
+- [ ] Test hele appen uten internett og etter omstart. Kaldstart og lokale data er kontrollert, og kodebasen har ingen nettverksklient; en faktisk test med nettverket slått av gjenstår.
+- [x] Test Dynamic Type, VoiceOver, kontrast og lengre tekster.
+- [x] Vurder iPad-oppsett og bestem eksplisitt om det skal med ved lansering. iPad markedsføres ikke som optimalisert ved første lansering; et eget fler-kolonneoppsett og enhetstester kreves før dette endres.
+- [x] Vurder eksport/import av favoritter og notater før bred bruk, med validering og uten overskriving uten bekreftelse. Funksjonen utsettes; eventuell senere import skal bruke versjonert format, validering, forhåndsvisning og eksplisitt bekreftelse før data erstattes.
+
+Ferdig når: innhold og brukerflyt er klare for eksterne testere.
+
+## M8 – TestFlight
+
+- [ ] Kontroller gjeldende Apple-krav, signering, bundle-ID, versjon og build.
+- [ ] Test på fysisk iPhone og støttede systemversjoner.
+- [ ] Test oppdatering av app/data, uten tap av favoritter og handleliste.
+- [ ] Lag testinstruksjoner: velg land/rett → porsjoner → allergener → ingrediensbytte → butikkforslag → skriv ut/del handleliste → kontroller samme alternativ i matlagingssteg.
+- [ ] Arkiver, last opp og sett opp TestFlight etter gjeldende prosess.
+- [ ] Samle feil og rett dem før ny funksjonalitet. Dokumenter kritiske feil som lanseringsblokkere.
+
+Ferdig når: eksterne testere har gjennomført kjernen uten uløste kritiske feil.
+
+## M9 – App Store
+
+- [ ] Sjekk arbeidsnavnets tilgjengelighet og velg endelig navn.
+- [ ] Bestem prismodell; gratis uten kjøp er utgangspunktet for utviklingen, ikke en bindende forretningsbeslutning.
+- [ ] Lag eget ikon, skjermbilder, beskrivelse, nøkkelord og supportside.
+- [ ] Publiser personvernerklæring som samsvarer med faktisk dataflyt og fyll ut App Privacy korrekt.
+- [ ] Kontroller aldersvurdering, rettigheter og gjeldende App Review-krav.
+- [ ] Gi review-instruksjoner og kontroller at alt innhold og alle lenker fungerer.
+- [ ] Send inn når brukeren ber om det, og registrer lanseringsversjon/build.
+
+Ferdig når: appen er godkjent og tilgjengelig i de valgte markedene.
+
+## Senere, etter en stabil første versjon
+
+Mulige utvidelser: ukemeny med samlet handleliste, flere land, iPad, iCloud-synk, personlige oppskrifter, redaksjonelle oppskriftspakker og bedre prisgrunnlag. Popularitet fra faktiske brukere krever egen dataløsning og personvernvurdering. AI-genererte oppskrifter og automatiske allergenpåstander skal ikke innføres som ukontrollert innhold.
+
+## Arbeidslogg – oppdateres av Codex
+
+| Dato | Milepæl | Endringer | Build/test | Gjenstår |
+| --- | --- | --- | --- | --- |
+| 2026-10-09 | Plan | Milepælplan opprettet | Ingen app bygget | Start M0 |
+| 2026-10-09 | Plan revidert | Nasjonalretter/populære retter, ingredienser i Norge, butikkforslag og utskrift. Ingrediensbytter følger oppskrift og steg. | Plan kontrollert; ingen app bygget | Start/fortsett med gjeldende milepæl |
+| 2026-10-09 | M0 statusavstemming | Leste revidert plan og faktisk kode. Beholdt M0 som aktiv milepæl, dokumenterte prosjektinnstillinger og presiserte at demooversikten skal vise det nye fokuset uten å trekke senere funksjoner inn i M0. Endret `VerdensGryta_MILESTONES.md`; ingen appkode endret. | Eksisterende SwiftUI-mal bygget uten feil i Xcode. Ingen manuell UI-test utført. | Implementer resten av M0 fra dagens mal, med tre land-/rettstype-merkede demoer, innstillinger og lokalisering. |
+| 2026-10-09 | M0 fullført | Erstattet `ContentView` med `ExploreRecipesView`; la til tre demoer fra Thailand, Norge og Mexico, `SettingsView`, lagret språk/tema, metadata for appnavn og versjon, og String Catalog-oversettelser for Bokmål og thai. Valgt locale oppdaterer også navigasjon og kort direkte. Endret `VerdensGrytaApp.swift`; la til `AppPreferences.swift`, `RecipePreview.swift`, `ExploreRecipesView.swift`, `SettingsView.swift`, `Localizable.xcstrings` og `VerdensGryta-InfoPlist.xcstrings`; fjernet `ContentView.swift`. | Full Xcode-build uten feil og livediagnostikk uten funn. På iPhone 17 Pro-simulator: tre kort, navigasjon, norsk/engelsk/thai, lyst/mørkt/system, appmetadata og lagring etter omstart kontrollert. Mørk modus og direkte språkbytte bestått uten klipping. Dynamic Type-kodeaudit: PASS (systemets tekststiler, fleksibel `List`/`Form`, ingen faste teksthøyder). Simulatorverktøyet kunne ikke aktivere en reell tilgjengelighetsstørrelse, så stor tekst er ikke manuelt verifisert. | M1 er neste milepæl. Manuell kontroll med en tilgjengelighetsstørrelse anbefales før ekstern testing. |
+| 2026-10-09 | M1 fullført | Innførte robuste `Codable`-modeller, lokal JSON-loader og validering. Flyttet de tre demoene til `DemoRecipes.json` med `en`/`nb`/`th`, stabile ID-er, demo-status, kilder, ingredienser, steg, tider, original og tilpasset variant samt kjøpsveiledning. La til `RecipeDetailView`, `Recipe.swift`, `RecipeLoader.swift` og `RecipeDisplayNames.swift`; oppdaterte oversikten til å laste JSON og vise feiltilstand; fjernet den statiske `RecipePreview.swift`. | Full Xcode-build uten feil; livediagnostikk uten funn; 92/92 String Catalog-strenger komplette på Bokmål og thai. Snippet-kontroller: 3 gyldige oppskrifter lastet; ugyldig JSON og manglende felt avvist; ukjente enumverdier bevart; engelsk fallback markert. På iPhone 17 Pro-simulator i mørk modus åpnet alle tre detaljsider, alle M1-seksjoner var tilgjengelige, norsk/thai oppdaterte både UI og JSON-innhold, ingen uventet fallback, krasj, klipping eller vedvarende overlapping. Nettverkstrafikk ble ikke instrumentert, men oppskriftene lastes fra bundle. | M2 er neste milepæl. Gjenta layoutkontroll på flere enhets- og tekststørrelser før ekstern testing. |
+| 2026-10-12 | M2 fullført | La til `PortionCalculator` som beregner fra oppskriftens uendrede `Decimal`-originalmengder, porsjonsvelger fra 0,5 til 12, kapasitetsvarsel ved minst dobbel mengde, metrisk formatering, lesbare stykkbrøker og skalerte ingrediensreferanser i fremgangsmåten. Tekstmengder bevares uten numerisk skalering. Nye grensesnittstrenger er oversatt til Bokmål og thai. | To fulle Xcode-build uten feil; livediagnostikk uten funn. Snippet-kontroller besto for 2 → 4 → 2, halv porsjon, stykkbrøk, g → kg, tekstmengde og samsvar mellom ingrediensliste og steg. Tid ligger utenfor beregningstjenesten og forble uendret; demoene har ingen faste temperaturverdier å skalere. Simulatorverifisering bekreftet porsjonsvalg, retur til originalmengde, samsvar i steg, kapasitetsvarsel, uendret tid og ryddig layout. String Catalog har 98/98 komplette strenger for Bokmål og thai. | M3 er neste milepæl og er ikke startet. |
+| 2026-10-12 | M3 fullført | La til lagret allergenprofil med de 14 merkingspliktige kategoriene, `AllergenAssessmentService`, ingrediens- og rettsvarsler for kjent, mulig/produktavhengig og ukjent innhold samt tydelig etikett-/krysskontaktforbehold. Gjorde de tre redaksjonelle demoalternativene aktivt valgbare med mengdefaktor, allergendata, begrunnelse, smaksforskjell, stegtekst og vurderte tids-/temperaturnotater. Dokumenterte Mattilsynet og EU-forordning 1169/2011 vedlegg II i `ALLERGEN_SOURCES.md`. | To fulle Xcode-build uten feil; livediagnostikk uten funn; 131/131 String Catalog-strenger komplette på Bokmål og thai. Snippet-kontroller besto for kjent/mulig/ukjent allergen, lasting av tre demoer og identisk valgt navn/mengde mellom ingrediens og steg. På iPhone 17 Pro-simulator ble lagret melkeprofil, rettsvarsel, crème-fraîche-bytte, stegoppdatering, tids-/temperaturnotater, allergenoppdatering og retur til original kontrollert uten krasj eller layoutfeil. | M4 er neste milepæl. Handleliste-/utskriftskontrollen for valgte alternativer gjentas når disse funksjonene finnes i M4. |
+| 2026-10-12 | M4 fullført | La til lagret handleliste fra gjeldende porsjoner og valgte ingrediensbytter, «allerede hjemme», avkrysning, mengderedigering, egne varer, butikk-/avdelingsgruppering og tilbakeføring av et valgt alternativ til originaloppskriften. Kompatible g/kg, ml/l og ts/ss normaliseres før sammenslåing etter stabil ingrediens-ID. La til systemdeling som tekst, lokalisert A4-PDF, Quick Look-forhåndsvisning, PDF-deling og iOS-utskriftsdialog. | Full Xcode-build uten feil; 164/164 String Catalog-strenger komplette på Bokmål og thai. Regresjonstest bekreftet at 500 g + 1 kg av samme stabile ingrediens-ID blir 1500 g, mens 2 ml holdes separat. Flersiders PDF og thailandske tegn ble validert med PDFKit. På iPhone-simulator ble persistens, norsk `stk.`, norsk PDF, egne varer uten null porsjoner, systemdeling, utskriftsdialog uten skriver og avbrutt utskrift kontrollert uten krasj, overlapping eller klipping. | M5 er neste milepæl og er ikke startet. |
+| 2026-10-12 | M5 fullført | La til lagret matlagingsøkt med låst øyeblikksbilde av oppskrift, porsjoner og ingrediensbytter, ett steg om gangen, stegspesifikke mengder og tilpasset stegtekst. La til flere samtidige tidtakere med sluttidspunkt, pause/fortsett/avslutt, gjenopptak fra oversikten og tilgjengelige, eksplisitt lokaliserte navigasjonskontroller. Systemvarsler brukes ikke i M5. | Full Xcode-build uten feil og livediagnostikk uten funn i matlagingsvisningen; 184/184 String Catalog-strenger komplette på Bokmål og thai. Snippet-kontroller bekreftet lagret steg/valg/porsjoner, sluttidspunktbasert resttid, pauset resttid, relansering og fjerning av avsluttet timer. På iPhone-simulator ble valgt alternativ og mengder, neste/forrige, to samtidige tidtakere, pause/fortsett/avslutt, bakgrunn/lås/retur, relansering, fullføring og VoiceOver-navn kontrollert uten krasj, overlapping eller klipping. | M6 er neste milepæl og er ikke startet. |
+| 2026-10-12 | M6 fullført | La til søk i rett og ingrediens samt kombinerbare filtre for kategori, land, rettstype, utstyr, totaltid og favoritter, med tomtilstand. Innførte privat SwiftData-lagring av favoritt og notat med stabil oppskrifts-ID. La til daterte NOK-prisanslag for ingrediensforbruk, total/per porsjon, prisgrunnlag, manglende-data-tilstand og pakningsforbehold. Oversikten merkes som redaktørens utvalg av demooppskrifter; ingen popularitet eller observerte butikkpriser vises. | Full Xcode-build uten feil; 215/215 String Catalog-strenger komplette på Bokmål og thai. Snippet-kontroller bekreftet tre prisanslag, datoer, ingredienssøkegrunnlag og SwiftData-modellen. På iPhone-simulator besto rett-/ingredienssøk, alle filtertyper, kombinasjonsfilter, tomtilstand, prisvisning, favorittfilter og notat. Favoritt/notat ble bevart etter tvangsavslutning og kaldstart med ny prosess-ID. Ingen krasj, heng, overlapping eller avkorting. | M7 er neste milepæl og er ikke startet. |
+| 2026-10-12 | M7 teknisk gjennomgang | La til en lokalisert brukerveiledning i Innstillinger og `USER_GUIDE.md`. Dokumenterte lanseringsberedskap, redaksjonelle blokkere og eksplisitte iPad- og eksport/import-beslutninger i `LAUNCH_READINESS.md`. Rettet veiledningens store tittel for tilgjengelighetsstørrelser. | Full Xcode-build uten feil; 234/234 String Catalog-strenger komplette på Bokmål og thai. Kodeaudit besto for Dynamic Type, VoiceOver og kontrast. På iPhone-simulator ble norsk/thai, lyse/mørke farger, lange tekster, Accessibility XXXL og kald omstart med lokale data kontrollert. Ingen nettverks-API-er finnes, men testverktøyet kunne ikke fysisk deaktivere nettverket. | Utvid og redaksjonelt kontroller lanseringsinnholdet, dokumenter fysisk prøvelaging og få språkkyndig vurdering av mattrygghetstekster. Utfør en ekte frakoblet test. M8 er ikke startet. |
+| 2026-10-12 | M7 kontrollmaler | La til `RECIPE_EDITORIAL_CHECKLIST.md` for kilder, klassifisering, rettigheter, ingredienser, allergener, mattrygghet, språk og godkjenning per oppskrift. La til `M7_TEST_LOG.md` for prøvelaging, kontroll i appen, frakoblet test og samlet M7-godkjenning. Ingen appkode eller avkrysninger ble endret. | Dokumentmalene er kontrollert mot de åpne M7-punktene. Ingen ny build var nødvendig fordi bare Markdown-dokumentasjon ble endret. | Fyll ut én sjekkliste per publiseringsoppskrift og testloggen med faktiske resultater. M7 forblir pågående. |
+| 2026-10-12 | M7 innholdsparti 1 | La til Osaka-okonomiyaki som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, regional klassifisering, ingredienser, steg, butikkveiledning og et uttrykkelig uprøvd potetalternativ. Kilden er Japans landbruksdepartements side om regionale retter; kildetekst og bilder er ikke kopiert. Oppskriften er merket `draft`, produktavhengige allergener er usikre, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte fire unike oppskrifter; den nye oppskriften ble lest som `jp-osaka-okonomiyaki:draft`. | Prøvelag og språk-/allergenkontroller utkastet før status kan endres. Fortsett gradvis med flere land og retter; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 2 | La til peruansk lomo saltado som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, ingredienser, steg, butikkveiledning og et uttrykkelig uprøvd mørbradalternativ. Kilden er den offisielle reiselivssiden Peru Travel; kildetekst og bilder er ikke kopiert. Soyasaus og eddik har synlig produktavhengig allergenusikkerhet, oppskriften er merket `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte fem unike oppskrifter; det nye utkastet ble lest som `pe-lomo-saltado:draft`. | Prøvelag og språk-/allergenkontroller utkastet før status kan endres. Fortsett gradvis med flere land og retter; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 3 | La til marokkansk grønnsakscouscous som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, ingredienser, steg, butikkveiledning og et uttrykkelig uprøvd pastinakkalternativ. Kilden er Marokkos nasjonale turistkontor, som omtaler couscous som en grunnrett med mange varianter; kildeoppskrift, tekst og bilder er ikke kopiert. Produktavhengige opplysninger er markert usikre, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte seks unike oppskrifter; det nye utkastet ble lest som `ma-vegetable-couscous:draft`. | Prøvelag og språk-/allergenkontroller utkastet før status kan endres. Fortsett gradvis med flere land og retter; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 4 | La til pasta carbonara fra Lazio som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, regional klassifisering, ingredienser, steg, butikkveiledning og et uttrykkelig uprøvd pancettaalternativ. Kilden er Italias offisielle reiselivsside; kildeoppskrift, tekst og bilder er ikke kopiert. Egg-, melk- og glutenopplysninger er angitt, produktdata er markert etter sikkerhetsnivå, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte sju unike oppskrifter; det nye utkastet ble lest som `it-pasta-carbonara:draft`. | Prøvelag og få mattrygghets-/språkkontroll, særlig av eggbehandlingen, før status kan endres. Fortsett gradvis med flere land og retter; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 5 | La til koreansk bibimbap som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, separat tilberedte toppinger, butikkveiledning og et uttrykkelig uprøvd soppalternativ til ferdig klargjort gosari. Kilden er Koreas offisielle turistorganisasjon; kildeoppskrift, tekst og bilder er ikke kopiert. Egg, sesam og produktavhengig gluten/soya er registrert, gosari har særskilt klargjøringsadvarsel, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte åtte unike oppskrifter; det nye utkastet ble lest som `kr-bibimbap:draft`. | Prøvelag og få språk-, allergen- og mattrygghetskontroll før status kan endres. Åtte land er nå representert, men lanseringsantallet og redaksjonell godkjenning gjenstår. |
+| 2026-10-12 | M7 innholdsparti 6 | La til oyakodon fra Tokyo som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, regional klassifisering, ingredienser, steg, butikkveiledning og et uttrykkelig uprøvd vårløkalternativ til mitsuba. Kilden er Japans landbruksdepartements side om regionale retter; kildetekst og bilder er ikke kopiert. Egg, soya og produktavhengig gluten/fisk er registrert, kylling- og eggtrygghet er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte ni unike oppskrifter; det nye utkastet ble lest som `jp-tokyo-oyakodon:draft`. | Prøvelag og få språk-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 7 | La til koreansk bulgogi med storfekjøtt som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, marinade, steg, butikkveiledning og et uttrykkelig uprøvd eplealternativ til asiatisk pære. Kilden er Koreas offisielle turistorganisasjon; kildeoppskrift, tekst og bilder er ikke kopiert. Soya, sesam og produktavhengig gluten er registrert, kjølelagret marinering og trygg gjennomsteking er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte ti unike oppskrifter; det nye utkastet ble lest som `kr-beef-bulgogi:draft`. | Prøvelag og få språk-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 8 | La til meksikansk hvit pozole som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, ferdigkokt matgodkjent pozolemais, friskt tilbehør og et uttrykkelig uprøvd kyllingalternativ til svinekjøtt. Offisielle meksikanske kultur- og landbrukskilder underbygger historie og regionale former; kildeoppskrift, tekst og bilder er ikke kopiert. Ubehandlet mais frarådes uttrykkelig, trygg gjennomsteking er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte elleve unike oppskrifter; det nye utkastet ble lest som `mx-white-pozole:draft`. | Prøvelag og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 9 | La til norske kjøttkaker i brun saus som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, tradisjonelt tilbehør, butikkveiledning og en uttrykkelig uprøvd saus jevnet med maisstivelse i stedet for hvetemel. Kilden er Norges offisielle reiselivsside; kildeoppskrift, tekst og bilder er ikke kopiert. Melk og gluten samt produktavhengig selleri/soya er registrert, trygg gjennomsteking og rå melsmak er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte tolv unike oppskrifter; det nye utkastet ble lest som `no-kjottkaker:draft`. | Prøvelag og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 10 | La til cacio e pepe fra Lazio som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, regional klassifisering, tre-ingrediensprofil, butikkveiledning og et uttrykkelig utradisjonelt og uprøvd grana-padano-alternativ til pecorino romano. Kilden er Italias offisielle reiselivsside; kildeoppskrift, tekst og bilder er ikke kopiert. Melk og gluten er registrert, temperaturfølsom ostemulsjon er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte tretten unike oppskrifter; det nye utkastet ble lest som `it-cacio-e-pepe:draft`. | Prøvelag begge ostevariantene og få språk-, allergen- og teknikkontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 11 | La til peruansk papa a la huancaína som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, potet og ferskostsaus, butikkveiledning og et uttrykkelig uprøvd alternativ med ají amarillo-pasta fra glass. Kilden er den offisielle reiselivssiden Peru Travel; kildetekst og bilder er ikke kopiert. Melk, egg og produktavhengig sulfitt er registrert, håndtering av chili og kjølelagring av meierisaus er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte fjorten unike oppskrifter; det nye utkastet ble lest som `pe-papa-huancaina:draft`. | Prøvelag begge chilivariantene og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 12 | La til en kjøttfri marokkansk harira som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, belgvekster, tomat, selleri, pasta og mel samt et uttrykkelig uprøvd bladpersillealternativ til koriander. Kilden er Marokkos nasjonale turistkontors omtale av harira og Ramadan-konteksten; kildeoppskrift, tekst og bilder er ikke kopiert, og utkastet fremstilles ikke som den eneste tradisjonelle formen. Selleri, gluten og mulig egg er registrert, gjennomkoking av meljevning er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte femten unike oppskrifter; det nye utkastet ble lest som `ma-vegetable-harira:draft`. | Prøvelag begge urtevariantene og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 13 | La til klar thailandsk tom yum kung som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, rekekraft, aromater og et uttrykkelig uprøvd nødbytte fra galangal til ingefær. Thailands utenriksdepartements kulturpublikasjon og myndighetenes omtale av UNESCO-innskrivingen underbygger formen og betydningen; kildeoppskrift, tekst og bilder er ikke kopiert. Skalldyr og fisk er registrert, kjølekjede, rensing, gjennomkoking og uspiselige fiberrike aromater er fremhevet, oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte seksten unike oppskrifter; det nye utkastet ble lest som `th-clear-tom-yum-kung:draft`. | Prøvelag original- og ingefærvariant og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 14 | La til japansk misosuppe med tofu og wakame som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær rett, awase-dashi og et uttrykkelig uprøvd vegetarisk kombu-dashi-alternativ. Kilden er Japans landbruksdepartements offisielle side om japansk mat; kildetekst og bilder er ikke kopiert. Fisk, soya og produktavhengig gluten er registrert, pakningsanvisning for wakame og skånsom misotilsetting er fremhevet. Retten er korrekt bare merket med fiskekategori fordi originalen inneholder bonito; oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. `RecipeLoader` lastet og validerte sytten unike oppskrifter; det nye utkastet ble lest som `jp-miso-soup:draft`. | Prøvelag begge dashi-variantene og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 15 | La til koreansk japchae som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst, klassifisering som populær fest- og selskapsrett, søtpotetnudler, storfekjøtt, sopp og separat tilberedte grønnsaker samt et uttrykkelig uprøvd kjøttfritt østerssoppalternativ. Kilden er Koreas offisielle turistorganisasjon; kildeoppskrift, formuleringer og bilder er ikke kopiert. Soya, sesam og produktavhengig gluten er registrert, etikettkontroll og trygg håndtering av rått kjøtt er fremhevet. Retten er bare merket med storfekjøttkategori fordi originalvarianten inneholder kjøtt; oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON-kontrollen fant atten unike oppskriftsobjekter, og det nye utkastet ble lest som `kr-japchae:draft`. | Prøvelag begge variantene og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 16 | La til meksikanske røde enchiladas med kylling som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst. Retten er klassifisert som en populær variant i en stor familie av regionale enchiladas, ikke som den eneste tradisjonelle formen. Utkastet bruker maistortilla, tomat, guajillo, kylling og pasteurisert ferskost samt et uttrykkelig uprøvd kjøttfritt alternativ med svarte bønner. Kilden er Mexicos landbruksdepartement; kildeoppskrift, formuleringer og bilder er ikke kopiert. Melk og produktavhengig gluten er registrert, og trygg håndtering av chili, varm væske, kylling og kjølevarer er fremhevet. Oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON- og ID-kontrollen fant nitten unike oppskriftsobjekter; det nye utkastet ble lest som `mx-red-chicken-enchiladas:draft`. | Prøvelag begge fyllvariantene og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 17 | La til kremet norsk fiskesuppe som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst. Retten er klassifisert som en populær tradisjonell form, samtidig som variasjon mellom kyststeder, husholdninger, sesonger og tilgjengelig sjømat er presisert. Utkastet bruker fiskekraft, torsk, laks, reker, fløte og finskårne grønnsaker samt et uttrykkelig uprøvd alternativ der rekene erstattes med mer torsk. Kilden er Norges offisielle reiselivsside; kildeformuleringer og bilder er ikke kopiert. Fisk, skalldyr, melk, gluten og selleri samt produktavhengige tilleggsallergener er registrert. Trygg kjøling, full tilberedning av fisk, skånsom oppvarming av ferdigkokte reker og gjennomkoking av meljevning er fremhevet. Oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON- og ID-kontrollen fant tjue unike oppskriftsobjekter; det nye utkastet ble lest som `no-creamy-fish-soup:draft`. | Prøvelag begge variantene og få språk-, produkt-, allergen- og mattrygghetskontroll før status kan endres. Den reke-frie varianten må ikke fremstilles som sjømatallergisikker. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 18 | La til tiramisù fra Treviso/Veneto som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst. Den regionale tilknytningen og kjerneingrediensene er underbygget av Italias offisielle reiselivsside; kildeoppskrift, formuleringer og bilder er ikke kopiert. Utkastet bruker uttrykkelig pasteurisert eggeplommeprodukt og pasteurisert mascarpone, ubrutt kjølekjede og rask nedkjøling, og har en uprøvd tilpasning med koffeinfri kaffe. Egg, melk, gluten og produktavhengige spor av melk/nøtter er registrert. Tilpasningen lover ikke fullstendig koffeinfrihet uten produktbekreftelse. Oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON- og ID-kontrollen fant 21 unike oppskriftsobjekter; det nye utkastet ble lest som `it-treviso-tiramisu:draft`. | Prøvelag begge kaffevariantene og få språk-, produkt-, allergen- og mattrygghetskontroll. Bekreft tilgang til pasteurisert eggprodukt, trygg kjøletid og maksimal oppbevaring før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 19 | La til peruansk ají de gallina fra Lima som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst. Historie, popularitet og rettens kjerne av strimlet hønse-/kyllingkjøtt, ají amarillo, melk, brød, nøtter og ost er underbygget av Perus offisielle reiselivssider; kildeformuleringer og bilder er ikke kopiert. Utkastet bruker kylling og serveres med potet, hardkokt egg og oliven. Et uttrykkelig uprøvd solsikkefrøalternativ erstatter pekannøtter uten å love at retten dermed er nøttefri. Gluten, melk, egg, nøtter, selleri og produktavhengige allergener er registrert. Trygg kyllinghåndtering, varm væske, chili, gjennomkoking og nedkjøling er fremhevet. Oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON- og ID-kontrollen fant 22 unike oppskriftsobjekter; det nye utkastet ble lest som `pe-aji-de-gallina:draft`. | Prøvelag begge variantene og få språk-, produkt-, allergen- og mattrygghetskontroll. Fastsett ají-styrke, kraftmengde, sauskonsistens og tider før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 20 | La til marokkansk kyllingtagine med syltet sitron og grønne oliven som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst. Tagine som populær rettsfamilie, den langsomme fuktige tilberedningen og variasjonsbredden er underbygget av Marokkos nasjonale turistkontor; kildeoppskrift, formuleringer og bilder er ikke kopiert. Utkastet er én kyllingtolkning tilpasset tykkbunnet gryte på komfyr og har et uttrykkelig uprøvd fersksitronalternativ som beskrives som skarpere og ikke likeverdig med syltet sitron. Produktavhengig sulfitt og store saltvariasjoner er registrert. Separat råkyllinghåndtering, full gjennomkoking, væskekontroll og rask nedkjøling er fremhevet. Oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON- og ID-kontrollen fant 23 unike oppskriftsobjekter; det nye utkastet ble lest som `ma-chicken-lemon-olive-tajine:draft`. | Prøvelag begge sitronvariantene og få språk-, produkt-, allergen- og mattrygghetskontroll. Fastsett væskemengde, koketid, sausetykkelse, syre og salt før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+| 2026-10-12 | M7 innholdsparti 21 | La til thailandsk grønn kyllingcurry som et kildebelagt, selvstendig formulert utkast med engelsk, norsk og thai tekst. Rettens popularitet, farge-/smaksprofil og ingrediensramme med kokosmelk, grønn currypasta, kylling, aubergine, fiskesaus, palmesukker, limeblader og basilikum er underbygget av thailandske myndighetskilder; kildeformuleringer og bilder er ikke kopiert. Utkastet har et uttrykkelig uprøvd squashalternativ til rund thailandsk aubergine, beskrevet som mykere, søtere og ikke likeverdig. Fisk og produktavhengig skalldyr, soya og gluten er registrert. Etikettkontroll av currypasta og fiskesaus, separat råkyllinghåndtering, gjennomkoking, chilihåndtering og rask nedkjøling er fremhevet. Oppskriften er `draft`, og prisanslag er utelatt. | Full Xcode-build uten feil. JSON- og ID-kontrollen fant 24 unike oppskriftsobjekter; det nye utkastet ble lest som `th-green-chicken-curry:draft`. | Prøvelag begge grønnsaksvariantene og få språk-, produkt-, allergen- og mattrygghetskontroll. Fastsett currypastamengde, kokosproduktets oppførsel, salt, styrke og koketid før status kan endres. Fortsett gradvis innenfor de åtte valgte landene; M7 er ikke fullført. |
+
+Ved hver oppdatering: skriv hvilke filer som er endret, hva som er kontrollert, eventuelle feil og neste konkrete oppgave. Ikke endre avkrysninger for arbeid som bare er planlagt.
+
+## Melding til Codex hvis prosjektet allerede er påbegynt
+
+```text
+Les den reviderte VerdensGryta_MILESTONES.md. Hovedfokuset er nasjonalretter og populære retter, med ingredienser som kan handles i Norge. Handlelisten skal kunne skrives ut med butikkforslag, og valgte ingrediensbytter skal følge oppskrift og tilberedningssteg. Bevar eksisterende fremdrift i prosjektet; denne nedlastede planen inneholder ingen bekreftede implementeringsavkrysninger. Sammenlign planen med faktisk kode og tidligere arbeidslogg, dokumenter status og tilpass gjeldende milepæl. Ikke start prosjektet på nytt eller implementer alle senere milepæler nå.
+```
+
+## Første melding til Codex
+
+```text
+Les VerdensGryta_MILESTONES.md og eventuelle AGENTS.md-filer. Undersøk det eksisterende Xcode-prosjektet. Gjennomfør bare M0 – Prosjektgrunnlag. Bevar signering og eksisterende fungerende kode. Bygg hvis miljøet støtter det, oppdater avkrysninger og arbeidslogg, og gi meg en kort liste over hva jeg skal teste i Xcode/på iPhone. Stopp før M1.
+```
+
+## Melding når vi er klare for neste trinn
+
+```text
+Les den oppdaterte VerdensGryta_MILESTONES.md. Gjennomfør neste uferdige milepæl, og bare den. Kontroller resultatet, oppdater filen og fortell hva jeg skal teste før vi fortsetter.
+```
