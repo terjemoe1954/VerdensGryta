@@ -4,7 +4,7 @@ struct CookingModeView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
     @Environment(CookingSessionStore.self) private var sessionStore
-
+    
     let recipe: Recipe
     private let calculator = PortionCalculator()
 
