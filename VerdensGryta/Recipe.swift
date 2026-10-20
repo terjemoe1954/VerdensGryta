@@ -119,6 +119,7 @@ enum CookingEquipment: Hashable, Codable {
     case slowCooker
     case pot
     case fryingPan
+    case waffleIron
     case noHeat
     case unknown(String)
 
@@ -131,6 +132,7 @@ enum CookingEquipment: Hashable, Codable {
         case "slowCooker": self = .slowCooker
         case "pot": self = .pot
         case "fryingPan": self = .fryingPan
+        case "waffleIron": self = .waffleIron
         case "noHeat": self = .noHeat
         default: self = .unknown(value)
         }
@@ -145,6 +147,7 @@ enum CookingEquipment: Hashable, Codable {
         case .slowCooker: try container.encode("slowCooker")
         case .pot: try container.encode("pot")
         case .fryingPan: try container.encode("fryingPan")
+        case .waffleIron: try container.encode("waffleIron")
         case .noHeat: try container.encode("noHeat")
         case .unknown(let value): try container.encode(value)
         }

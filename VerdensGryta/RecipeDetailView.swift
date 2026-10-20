@@ -37,14 +37,13 @@ struct RecipeDetailView: View {
 
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 24) {
-                RecipeImagePlaceholder(symbolName: recipe.symbolName)
+                RecipeImagePlaceholder(recipeID: recipe.id, symbolName: recipe.symbolName)
                 RecipeHeaderSection(
                     title: recipe.title,
                     originalName: recipe.originalName,
                     country: recipe.country,
                     region: recipe.region,
-                    dishType: recipe.dishType,
-                    status: recipe.contentStatus
+                    dishType: recipe.dishType
                 )
                 RecipeHistorySection(
                     summary: recipe.summary,
@@ -255,21 +254,26 @@ private struct RecipePriceSection: View {
 }
 
 private struct RecipeImagePlaceholder: View {
+    let recipeID: String
     let symbolName: String?
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: symbolName ?? "photo")
-                .font(.largeTitle)
-                .foregroundStyle(.orange)
-                .accessibilityHidden(true)
-            Text("Image not available")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        ZStack {
+            RecipeArtwork(recipeID: recipeID, symbolName: symbolName)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 32)
-        .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 210)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay(alignment: .bottomTrailing) {
+            Image(systemName: "fork.knife")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(12)
+                .background(.black.opacity(0.22), in: Circle())
+                .padding(14)
+                .accessibilityHidden(true)
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -279,7 +283,6 @@ private struct RecipeHeaderSection: View {
     let country: LocalizedText
     let region: LocalizedText?
     let dishType: RecipeDishType
-    let status: RecipeContentStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -303,11 +306,6 @@ private struct RecipeHeaderSection: View {
             Label(dishType.localizedName, systemImage: "fork.knife")
                 .font(.subheadline)
 
-            if status != .reviewed {
-                Label("Demo content — not ready for publication", systemImage: "exclamationmark.triangle")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
         }
     }
 }

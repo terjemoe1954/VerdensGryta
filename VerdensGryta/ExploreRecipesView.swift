@@ -129,7 +129,7 @@ private struct RecipeList: View {
                 }
             }
 
-            Section("Editor’s selection — demo recipes") {
+            Section {
                 if filteredRecipes.isEmpty {
                     ContentUnavailableView(
                         "No matching recipes",
@@ -142,28 +142,56 @@ private struct RecipeList: View {
                         RecipeDetailView(recipe: recipe)
                     } label: {
                         RecipeCard(
+                            recipeID: recipe.id,
                             title: recipe.title,
                             country: recipe.country,
                             dishType: recipe.dishType,
                             summary: recipe.summary,
-                            symbolName: recipe.symbolName
+                            symbolName: recipe.symbolName,
+                            totalMinutes: recipe.timing.totalMinutes,
+                            difficulty: recipe.difficulty,
+                            isFavorite: userStates.contains {
+                                $0.recipeID == recipe.id && $0.isFavorite
+                            }
                         )
                     }
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
+                    .listRowInsets(
+                        EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+                    )
                 }
+            } header: {
+                Text(LocalizedCopy.exploreTitle.resource(locale: locale))
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.primary)
+                    .textCase(nil)
             }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color(.systemGroupedBackground))
     }
 
     private var filteredRecipes: [Recipe] {
         let favoriteIDs = Set(userStates.filter(\.isFavorite).map(\.recipeID))
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).localizedLowercase
+        let query = normalizedSearchText(
+            searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
         return recipes.filter { recipe in
-            let searchValues = [recipe.title.resolve(locale: locale).value]
-                + recipe.ingredients.map { $0.name.resolve(locale: locale).value }
-            let matchesSearch = query.isEmpty || searchValues.contains { $0.localizedLowercase.contains(query) }
+            let searchValues = [
+                recipe.title.resolve(locale: locale).value,
+                recipe.originalName,
+                recipe.country.resolve(locale: locale).value,
+                recipe.region?.resolve(locale: locale).value ?? ""
+            ] + recipe.ingredients.flatMap { ingredient in
+                [ingredient.name.resolve(locale: locale).value]
+                    + ingredient.alternativeProductNames
+            }
+            let matchesSearch = query.isEmpty || searchValues.contains {
+                normalizedSearchText($0).contains(query)
+            }
             let country = recipe.country.resolve(locale: locale).value
             return matchesSearch
                 && (filters.category.map { recipe.categories.contains($0) } ?? true)
@@ -174,49 +202,94 @@ private struct RecipeList: View {
                 && (!filters.favoritesOnly || favoriteIDs.contains(recipe.id))
         }
     }
+
+    private func normalizedSearchText(_ value: String) -> String {
+        value.folding(
+            options: [.caseInsensitive, .diacriticInsensitive],
+            locale: locale
+        )
+    }
 }
 
 private struct RecipeCard: View {
+    let recipeID: String
     let title: LocalizedText
     let country: LocalizedText
     let dishType: RecipeDishType
     let summary: LocalizedText
     let symbolName: String?
+    let totalMinutes: Int
+    let difficulty: RecipeDifficulty
+    let isFavorite: Bool
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            Image(systemName: symbolName ?? "photo")
-                .font(.title2)
-                .foregroundStyle(.orange)
-                .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: 0) {
+            ZStack {
+                RecipeArtwork(recipeID: recipeID, symbolName: symbolName)
 
-            VStack(alignment: .leading, spacing: 8) {
+                VStack {
+                    HStack(alignment: .top) {
+                        Text(dishType.localizedName)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.black.opacity(0.22), in: Capsule())
+
+                        Spacer()
+
+                        if isFavorite {
+                            Image(systemName: "heart.fill")
+                                .foregroundStyle(.white)
+                                .padding(8)
+                                .background(.black.opacity(0.22), in: Circle())
+                                .accessibilityLabel("Add to favorites")
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(12)
+            }
+            .frame(height: 112)
+            .clipped()
+
+            VStack(alignment: .leading, spacing: 10) {
                 RecipeCardText(content: title, style: .headline)
 
-                Label {
+                HStack(spacing: 6) {
+                    Image(systemName: "mappin.and.ellipse")
+                        .accessibilityHidden(true)
                     RecipeCardText(content: country, style: .subheadline)
-                } icon: {
-                    Image(systemName: "globe.europe.africa")
-                }
-
-                Text(dishType.localizedName)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(.orange.opacity(0.16), in: Capsule())
-
-                Label {
-                    RecipeCardText(content: summary, style: .subheadline)
-                } icon: {
-                    Image(systemName: "basket")
                 }
                 .foregroundStyle(.secondary)
+
+                RecipeCardText(content: summary, style: .subheadline)
+                    .foregroundStyle(.secondary)
+
+                Divider()
+
+                HStack(spacing: 16) {
+                    Label("\(totalMinutes) min", systemImage: "clock")
+                    Label(difficulty.localizedName, systemImage: "chart.bar")
+                }
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
             }
+            .padding(16)
         }
-        .padding(.vertical, 10)
+        .background(.background, in: RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(.primary.opacity(0.08))
+        }
+        .shadow(color: .black.opacity(0.07), radius: 12, y: 5)
+        .contentShape(RoundedRectangle(cornerRadius: 20))
         .accessibilityElement(children: .combine)
     }
+
 }
 
 private struct RecipeCardText: View {

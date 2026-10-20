@@ -58,6 +58,7 @@ extension CookingEquipment {
         case .slowCooker: "Slow cooker"
         case .pot: "Pot"
         case .fryingPan: "Frying pan"
+        case .waffleIron: "Waffle iron"
         case .noHeat: "No heat"
         case .unknown: "Unknown equipment"
         }
@@ -69,7 +70,7 @@ extension CookingEquipment {
             "oven"
         case .pot, .slowCooker:
             "soup"
-        case .fryingPan:
+        case .fryingPan, .waffleIron:
             "frying.pan"
         case .stove:
             "cooktop"
