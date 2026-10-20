@@ -191,7 +191,7 @@ private struct ShoppingAmountText: View {
     var body: some View {
         if let quantity = item.quantity, let unit = item.unit {
             let value = IngredientQuantityFormatter().format(quantity: quantity, unit: unit, locale: locale)
-            (Text(value.quantityText) + Text(" ") + Text(value.unit.localizedName))
+            Text(verbatim: "\(value.quantityText) \(value.unit.localizedString(locale: locale))")
                 .foregroundStyle(.secondary)
         } else if let note = item.amountNote {
             Text(note.resolve(locale: locale).value).foregroundStyle(.secondary)

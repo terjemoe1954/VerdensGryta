@@ -5,6 +5,7 @@ extension RecipeDishType {
         return switch self {
         case .nationalDish: "National dish"
         case .popularDish: "Popular dish"
+        case .traditionalDish: "Traditional dish"
         case .regionalSpecialty: "Regional specialty"
         case .unknown: "Unknown dish type"
         }
@@ -59,6 +60,7 @@ extension CookingEquipment {
         case .pot: "Pot"
         case .fryingPan: "Frying pan"
         case .waffleIron: "Waffle iron"
+        case .blender: "Blender"
         case .noHeat: "No heat"
         case .unknown: "Unknown equipment"
         }
@@ -72,6 +74,8 @@ extension CookingEquipment {
             "soup"
         case .fryingPan, .waffleIron:
             "frying.pan"
+        case .blender:
+            "blender"
         case .stove:
             "cooktop"
         case .noHeat, .unknown:
@@ -90,6 +94,7 @@ extension IngredientUnit {
         case .teaspoon: "tsp"
         case .tablespoon: "tbsp"
         case .item: "item"
+        case .toTaste: "to taste"
         case .unknown: "unknown unit"
         }
     }
@@ -104,6 +109,7 @@ extension IngredientUnit {
         case .teaspoon: language == "nb" ? "ts" : (language == "th" ? "ชช." : "tsp")
         case .tablespoon: language == "nb" ? "ss" : (language == "th" ? "ชต." : "tbsp")
         case .item: language == "nb" ? "stk." : (language == "th" ? "ชิ้น" : "item")
+        case .toTaste: language == "nb" ? "etter smak" : (language == "th" ? "ตามชอบ" : "to taste")
         case .unknown: language == "nb" ? "ukjent enhet" : (language == "th" ? "หน่วยไม่ทราบ" : "unknown unit")
         }
     }

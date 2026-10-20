@@ -90,6 +90,7 @@ struct RecipeArtwork: View {
         case "it-tuscany-ribollita": "TuscanRibollita"
         case "jp-tokyo-sukiyaki": "TokyoSukiyaki"
         case "kr-beef-miyeokguk": "KoreanBeefMiyeokguk"
+        case "mx-jalisco-red-pozole": "JaliscoRedPozole"
         default: nil
         }
     }

@@ -189,7 +189,7 @@ final class ShoppingListStore {
         case .tablespoon:
             item.quantity = quantity * 3
             item.unit = .teaspoon
-        case .gram, .milliliter, .teaspoon, .item, .unknown:
+        case .gram, .milliliter, .teaspoon, .item, .toTaste, .unknown:
             break
         }
         return item

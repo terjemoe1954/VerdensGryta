@@ -38,6 +38,7 @@ struct ResolvedLocalizedText: Hashable {
 enum RecipeDishType: Hashable, Codable {
     case nationalDish
     case popularDish
+    case traditionalDish
     case regionalSpecialty
     case unknown(String)
 
@@ -48,6 +49,8 @@ enum RecipeDishType: Hashable, Codable {
             self = .nationalDish
         case "popularDish":
             self = .popularDish
+        case "traditionalDish":
+            self = .traditionalDish
         case "regionalSpecialty":
             self = .regionalSpecialty
         default:
@@ -62,6 +65,8 @@ enum RecipeDishType: Hashable, Codable {
             try container.encode("nationalDish")
         case .popularDish:
             try container.encode("popularDish")
+        case .traditionalDish:
+            try container.encode("traditionalDish")
         case .regionalSpecialty:
             try container.encode("regionalSpecialty")
         case .unknown(let value):
@@ -120,6 +125,7 @@ enum CookingEquipment: Hashable, Codable {
     case pot
     case fryingPan
     case waffleIron
+    case blender
     case noHeat
     case unknown(String)
 
@@ -133,6 +139,7 @@ enum CookingEquipment: Hashable, Codable {
         case "pot": self = .pot
         case "fryingPan": self = .fryingPan
         case "waffleIron": self = .waffleIron
+        case "blender": self = .blender
         case "noHeat": self = .noHeat
         default: self = .unknown(value)
         }
@@ -148,6 +155,7 @@ enum CookingEquipment: Hashable, Codable {
         case .pot: try container.encode("pot")
         case .fryingPan: try container.encode("fryingPan")
         case .waffleIron: try container.encode("waffleIron")
+        case .blender: try container.encode("blender")
         case .noHeat: try container.encode("noHeat")
         case .unknown(let value): try container.encode(value)
         }
@@ -216,6 +224,7 @@ enum IngredientUnit: Hashable, Codable {
     case teaspoon
     case tablespoon
     case item
+    case toTaste
     case unknown(String)
 
     init(from decoder: Decoder) throws {
@@ -228,6 +237,7 @@ enum IngredientUnit: Hashable, Codable {
         case "tsp": self = .teaspoon
         case "tbsp": self = .tablespoon
         case "item": self = .item
+        case "toTaste": self = .toTaste
         default: self = .unknown(value)
         }
     }
@@ -242,6 +252,7 @@ enum IngredientUnit: Hashable, Codable {
         case .teaspoon: try container.encode("tsp")
         case .tablespoon: try container.encode("tbsp")
         case .item: try container.encode("item")
+        case .toTaste: try container.encode("toTaste")
         case .unknown(let value): try container.encode(value)
         }
     }
