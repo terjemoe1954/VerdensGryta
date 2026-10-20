@@ -81,6 +81,15 @@ struct RecipeArtwork: View {
         case "no-heart-waffles": "NorwegianHeartWaffles"
         case "it-sicilian-caponata": "SicilianCaponata"
         case "jp-beef-nikujaga": "BeefNikujaga"
+        case "kr-beef-doenjang-jjigae": "BeefDoenjangJjigae"
+        case "mx-yucatan-cochinita-pibil": "YucatanCochinitaPibil"
+        case "pe-green-arroz-con-pollo": "PeruvianGreenArrozConPollo"
+        case "ma-sea-bream-vegetable-tagine": "SeaBreamVegetableTagine"
+        case "th-mango-sticky-rice": "ThaiMangoStickyRice"
+        case "no-traditional-raspeballer": "NorwegianRaspeballer"
+        case "it-tuscany-ribollita": "TuscanRibollita"
+        case "jp-tokyo-sukiyaki": "TokyoSukiyaki"
+        case "kr-beef-miyeokguk": "KoreanBeefMiyeokguk"
         default: nil
         }
     }
