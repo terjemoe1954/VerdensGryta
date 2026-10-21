@@ -9,6 +9,7 @@ struct ShoppingListView: View {
     @State private var previewURL: URL?
     @State private var documentError: String?
     @State private var manualItemName = ""
+    @State private var isShowingClearConfirmation = false
 
     var body: some View {
         List {
@@ -73,6 +74,12 @@ struct ShoppingListView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+
+                Section {
+                    Button("Clear shopping list", role: .destructive) {
+                        isShowingClearConfirmation = true
+                    }
+                }
             }
         }
         .navigationTitle("Shopping list")
@@ -91,6 +98,18 @@ struct ShoppingListView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(documentError ?? "")
+        }
+        .confirmationDialog(
+            "Clear the shopping list?",
+            isPresented: $isShowingClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear shopping list", role: .destructive) {
+                store.removeAll()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes every item from the shopping list. This action cannot be undone.")
         }
         .quickLookPreview($previewURL)
     }

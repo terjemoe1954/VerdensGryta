@@ -111,6 +111,11 @@ final class ShoppingListStore {
         save()
     }
 
+    func removeAll() {
+        items.removeAll()
+        save()
+    }
+
     func revertAlternative(for id: String) {
         guard let index = items.firstIndex(where: { $0.id == id }),
               let original = items[index].originalName else { return }
